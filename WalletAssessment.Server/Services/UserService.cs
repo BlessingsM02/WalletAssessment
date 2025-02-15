@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Security.Cryptography;
 using System.Text;
+using WalletAssessment.Server.Data.Context;
 using WalletAssessment.Server.Data.Contracts;
 using WalletAssessment.Server.Models;
 
@@ -14,6 +16,7 @@ namespace WalletAssessment.Server.Services
         private readonly ICurrentUserService _currentUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<UserService> _logger;
 
         /// <summary>
@@ -24,13 +27,14 @@ namespace WalletAssessment.Server.Services
         /// <param name="userManager">The user manager for managing user information.</param>
         /// <param name="mapper">The mapper for mapping objects.</param>
         /// <param name="logger">The logger for logging information.</param>
-        public UserService(ITokenService tokenService, ICurrentUserService currentUserService, UserManager<ApplicationUser> userManager, IMapper mapper, ILogger<UserService> logger)
+        public UserService(ITokenService tokenService, ICurrentUserService currentUserService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IMapper mapper, ILogger<UserService> logger)
         {
             _tokenService = tokenService;
             _currentUserService = currentUserService;
             _userManager = userManager;
             _mapper = mapper;
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -41,31 +45,66 @@ namespace WalletAssessment.Server.Services
         /// <exception cref="Exception">Thrown when the email already exists or user creation fails.</exception>
         public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
         {
-            _logger.LogInformation("Registering user");
+            // Null check for request
+            if (request == null)
+            {
+                _logger.LogError("Registration request is null");
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            // Validate required fields
+            if (string.IsNullOrEmpty(request.Name))
+            {
+                throw new ArgumentException("Name is required");
+            }
+
+            if (string.IsNullOrEmpty(request.Email))
+            {
+                throw new ArgumentException("Email is required");
+            }
+
+            // Check existing user
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                _logger.LogError("Email already exists");
-                throw new Exception("Email already exists");
+                throw new InvalidOperationException("Email already exists");
             }
 
+            // Map user
             var newUser = _mapper.Map<ApplicationUser>(request);
+            if (newUser == null)
+            {
+                _logger.LogError("AutoMapper failed to create ApplicationUser");
+                throw new InvalidOperationException("User mapping failed");
+            }
 
-            // Generate a unique username
+            // Generate username
             newUser.UserName = GenerateUserName(request.Name);
+            newUser.CreateAt = DateTime.UtcNow; 
+
+            // Create user
             var result = await _userManager.CreateAsync(newUser, request.Password);
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                _logger.LogError("Failed to create user: {errors}", errors);
-                throw new Exception($"Failed to create user: {errors}");
+                throw new InvalidOperationException($"User creation failed: {errors}");
             }
-            _logger.LogInformation("User created successfully");
+
+            // Generate tokens
             await _tokenService.GenerateToken(newUser);
-            newUser.CreateAt = DateTime.Now;
+
+            // Create wallet
+            var wallet = new Wallet
+            {
+                UserId = newUser.Id,
+                Balace = 0 
+            };
+
+            await _context.Wallets.AddAsync(wallet);
+             await _context.SaveChangesAsync();
+
             return _mapper.Map<UserResponse>(newUser);
         }
-
         /// <summary>
         /// Generates a unique username by concatenating the first name and last name.
         /// </summary>

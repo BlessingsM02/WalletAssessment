@@ -8,6 +8,6 @@ namespace WalletAssessment.Server.Models
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public DateTime CreateAt { get; set; } = DateTime.Now;
-        public virtual Wallet wallet { get; set; }
+        public virtual Wallet Wallet { get; set; }
     }
 }

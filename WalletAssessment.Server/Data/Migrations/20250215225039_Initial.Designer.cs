@@ -12,7 +12,7 @@ using WalletAssessment.Server.Data.Context;
 namespace WalletAssessment.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250214235330_Initial")]
+    [Migration("20250215225039_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -248,13 +248,13 @@ namespace WalletAssessment.Server.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Wallets");
                 });
@@ -313,17 +313,16 @@ namespace WalletAssessment.Server.Data.Migrations
             modelBuilder.Entity("WalletAssessment.Server.Models.Wallet", b =>
                 {
                     b.HasOne("WalletAssessment.Server.Models.ApplicationUser", "User")
-                        .WithOne("wallet")
+                        .WithOne("Wallet")
                         .HasForeignKey("WalletAssessment.Server.Models.Wallet", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("WalletAssessment.Server.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("wallet")
+                    b.Navigation("Wallet")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

@@ -166,7 +166,7 @@ namespace WalletAssessment.Server.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Balace = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
@@ -223,7 +223,8 @@ namespace WalletAssessment.Server.Data.Migrations
                 name: "IX_Wallets_UserId",
                 table: "Wallets",
                 column: "UserId",
-                unique: true);
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
         }
 
         /// <inheritdoc />

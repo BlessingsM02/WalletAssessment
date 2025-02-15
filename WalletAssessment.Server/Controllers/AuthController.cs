@@ -65,7 +65,7 @@ namespace WalletAssessment.Server.Controllers
         /// <param name="request">The refresh token request.</param>
         /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
         [HttpPost("refresh-token")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             var response = await _userService.RefreshTokenAsync(request);
@@ -94,7 +94,7 @@ namespace WalletAssessment.Server.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
         [HttpGet("current-user")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
             var response = await _userService.GetCurrentUserAsync();
