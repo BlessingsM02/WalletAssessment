@@ -8,7 +8,7 @@ A secure and user-friendly finance application for wallet management and transac
 - **Database**: Microsoft SQL Server
 
 # ✨ Main Features
--**Secure Authentication System**
+- **Secure Authentication System**
   - JWT-based login/registration
   **Wallet Management**
   - Real-time balance tracking
