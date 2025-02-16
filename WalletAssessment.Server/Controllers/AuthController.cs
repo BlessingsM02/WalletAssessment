@@ -70,36 +70,7 @@ namespace WalletAssessment.Server.Controllers
         {
             var response = await _userService.RefreshTokenAsync(request);
             return Ok(response);
-        }
-
-        /// <summary>
-        /// Revokes the refresh token.
-        /// </summary>
-        /// <param name="request">The refresh token request to be revoked.</param>
-        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
-        [HttpPost("revoke-refresh-token")]
-        [Authorize]
-        public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenRequest request)
-        {
-            var response = await _userService.RevokeRefreshToken(request);
-            if (response != null && response.Message == "Refresh token revoked successfully")
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
-        }
-
-        /// <summary>
-        /// Gets the current user.
-        /// </summary>
-        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
-        [HttpGet("current-user")]
-        //[Authorize]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            var response = await _userService.GetCurrentUserAsync();
-            return Ok(response);
-        }
+        }       
 
         /// <summary>
         /// Deletes a user.

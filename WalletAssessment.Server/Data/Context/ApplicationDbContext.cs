@@ -21,13 +21,7 @@ namespace WalletAssessment.Server.Data.Context
                 .HasForeignKey<Wallet>(w => w.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Wallet)
-                .WithMany(w => w.Transactions)
-                .HasForeignKey(t => t.WalletId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-
+            
         }
     }
 }

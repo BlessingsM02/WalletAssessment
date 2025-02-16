@@ -6,7 +6,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Wallet Management System</h1>
+      <h1>Wallet App</h1>
       {user ? (
         <div>
           <p>Welcome back, {user.email}!</p>

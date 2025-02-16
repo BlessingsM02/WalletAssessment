@@ -1,7 +1,6 @@
-// src/services/api.ts
 import axios from 'axios';
 
-// Create basic type definitions
+//type definitions
 interface ApiInstance {
   (config: any): Promise<any>;
   get: (url: string, config?: any) => Promise<any>;
@@ -28,8 +27,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
-    console.log('Request with token:', token);
-    
+    //console.log('Request with token:', token);
   }
   return config;
 });

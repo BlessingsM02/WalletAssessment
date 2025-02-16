@@ -9,11 +9,11 @@ namespace WalletAssessment.Server.Models
         [Key]
         public int Id { get; set; }
         public double Amount { get; set; }
-        public TransactionType TransactionType { get; set; }
+        public  string  TransactionType { get; set; }
         public DateTime Timestamp { get; set; }
         public string UserId { get; set; }
         public string Description { get; set; }
 
-        public virtual Wallet Wallet { get; set; }
+        //public virtual Wallet Wallet { get; set; }
     }
 }

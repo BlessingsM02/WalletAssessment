@@ -97,7 +97,7 @@ namespace WalletAssessment.Server.Services
             var wallet = new Wallet
             {
                 UserId = newUser.Id,
-                Balace = 0 
+                Balace = 100 
             };
 
             await _context.Wallets.AddAsync(wallet);

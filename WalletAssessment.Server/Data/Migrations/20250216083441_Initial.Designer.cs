@@ -12,8 +12,8 @@ using WalletAssessment.Server.Data.Context;
 namespace WalletAssessment.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250215233255_Secon")]
-    partial class Secon
+    [Migration("20250216083441_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,14 +254,15 @@ namespace WalletAssessment.Server.Data.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TransactionType")
-                        .HasColumnType("int");
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("WalletId")
+                    b.Property<int?>("WalletId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -347,13 +348,9 @@ namespace WalletAssessment.Server.Data.Migrations
 
             modelBuilder.Entity("WalletAssessment.Server.Models.Transaction", b =>
                 {
-                    b.HasOne("WalletAssessment.Server.Models.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
+                    b.HasOne("WalletAssessment.Server.Models.Wallet", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("WalletId");
                 });
 
             modelBuilder.Entity("WalletAssessment.Server.Models.Wallet", b =>
@@ -370,6 +367,11 @@ namespace WalletAssessment.Server.Data.Migrations
                 {
                     b.Navigation("Wallet")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WalletAssessment.Server.Models.Wallet", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

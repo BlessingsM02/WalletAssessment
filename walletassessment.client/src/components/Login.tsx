@@ -37,6 +37,7 @@ const Login = () => {
       setError('');
       setLoading(true);
       await login(values);
+      window.location.reload();
     } catch (error) {
       setError('Failed to log in. Check your credentials and try again.');
     } finally {

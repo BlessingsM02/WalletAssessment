@@ -11,7 +11,6 @@ namespace WalletAssessment.Server.Services
         Task<UserResponse> GetByIdAsync(Guid id);
         Task<UserResponse> UpdateAsync(Guid id, UpdateUserRequest request);
         Task DeleteAsync(Guid id);
-        Task<RevokeRefreshTokenResponse> RevokeRefreshToken(RefreshTokenRequest refreshTokenRemoveRequest);
         Task<CurrentUserResponse> RefreshTokenAsync(RefreshTokenRequest request);
 
         Task<UserResponse> LoginAsync(UserLoginRequest request);

@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.tsx
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
         try {
-            console.log('Checking authentication...');
+            //console.log('Checking authentication...');
             const refreshToken = localStorage.getItem('refreshToken');
             //console.log('Stored token:', refreshToken?.toString());
             
@@ -64,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post('/login', credentials);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       setUser(response.data.user);
-      navigate('/profile');
+      navigate('/Dashboard');
       //console.log('User:', localStorage.getItem('refreshToken'));
     } catch (error) {
       throw new Error((error as Error).message);

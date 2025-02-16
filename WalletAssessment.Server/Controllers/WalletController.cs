@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WalletAssessment.Server.Data.Context;
 using WalletAssessment.Server.Models;
-using System.ComponentModel.DataAnnotations;
+using WalletAssessment.Server.Data.Contracts;
 
 namespace WalletAssessment.Server.Controllers
 {
@@ -22,6 +22,8 @@ namespace WalletAssessment.Server.Controllers
             _logger = logger;
         }
 
+
+
         [HttpGet("balance")]
         public async Task<IActionResult> GetBalance(string email)
         {
@@ -32,77 +34,8 @@ namespace WalletAssessment.Server.Controllers
             return Ok(new { Balance = wallet?.Balace ?? 0 });
         }
 
-        [HttpPost("deposit")]
-        public async Task<IActionResult> Deposit(string email, [FromBody] TransactionRequest request)
-        {
-            if (request.Amount <= 0)
-                return BadRequest("Invalid amount");
-
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return NotFound("User not found");
-
-            using var dbTransaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == user.Id);
-                if (wallet == null)
-                    return NotFound("Wallet not found");
-
-                // Update the wallet balance
-                wallet.Balace += request.Amount;
-
-                // Record the deposit transaction
-                _context.Transactions.Add(new Transaction
-                {
-                    Amount = request.Amount,
-                    TransactionType = TransactionType.Deposit,
-                    Timestamp = DateTime.UtcNow,
-                    UserId = user.Id,
-                    Description = request.Description
-                });
-
-                // Save both changes atomically
-                await _context.SaveChangesAsync();
-                await dbTransaction.CommitAsync();
-
-                return Ok(new { NewBalance = wallet.Balace });
-            }
-            catch (Exception ex)
-            {
-                await dbTransaction.RollbackAsync();
-                _logger.LogError(ex, "Deposit failed");
-                return StatusCode(500, "Transaction failed");
-            }
-        }
 
 
-        [HttpPost("withdraw")]
-        public async Task<IActionResult> Withdraw(string email, [FromBody] TransactionRequest request)
-        {
-            if (request.Amount <= 0) return BadRequest("Invalid amount");
-
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return NotFound("User not found");
-
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == user.Id);
-            if (wallet == null) return NotFound("Wallet not found");
-
-            if (wallet.Balace < request.Amount) return BadRequest("Insufficient funds");
-
-            wallet.Balace -= request.Amount;
-            _context.Transactions.Add(new Transaction
-            {
-                Amount = request.Amount,
-                TransactionType = TransactionType.Withdrawal,
-                Timestamp = DateTime.UtcNow,
-                UserId = user.Id,
-                Description = request.Description
-            });
-
-            await _context.SaveChangesAsync();
-            return Ok(new { NewBalance = wallet.Balace });
-        }
 
         [HttpPost("transfer")]
         public async Task<IActionResult> Transfer(string senderEmail, string recipientEmail, [FromBody] TransactionRequest request)
@@ -123,8 +56,8 @@ namespace WalletAssessment.Server.Controllers
             recipientWallet.Balace += request.Amount;
 
             _context.Transactions.AddRange(
-                new Transaction { Amount = request.Amount, TransactionType = TransactionType.TransferOut, Timestamp = DateTime.UtcNow, UserId = sender.Id, Description = $"Transfer to {recipient.Email}" },
-                new Transaction { Amount = request.Amount, TransactionType = TransactionType.TransferIn, Timestamp = DateTime.UtcNow, UserId = recipient.Id, Description = $"Transfer from {sender.Email}" }
+                new Transaction { Amount = request.Amount, TransactionType = "Transfer", Timestamp = DateTime.UtcNow, UserId = sender.Id, Description = $"Transfer to {recipient.Email}" },
+                new Transaction { Amount = request.Amount, TransactionType = "Recieve", Timestamp = DateTime.UtcNow, UserId = recipient.Id, Description = $"Transfer from {sender.Email}" }
             );
 
             await _context.SaveChangesAsync();
@@ -145,37 +78,4 @@ namespace WalletAssessment.Server.Controllers
         }
     }
 
-
-
-// DTO Classes
-public class TransactionRequest
-    {
-        [Range(0.01, double.MaxValue)]
-        public double Amount { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class TransferRequest : TransactionRequest
-    {
-        [Required]
-        [EmailAddress]
-        public string RecipientEmail { get; set; }
-    }
-
-    public class TransactionDto
-    {
-        public double Amount { get; set; }
-        public string Type { get; set; }
-        public DateTime Timestamp { get; set; }
-        public string Description { get; set; }
-    }
-
-    // TransactionType Enum
-    public enum TransactionType
-    {
-        Deposit,
-        Withdrawal,
-        TransferIn,
-        TransferOut
-    }
 }
