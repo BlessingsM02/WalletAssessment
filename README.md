@@ -6,10 +6,9 @@ A secure and user-friendly finance application for wallet management and transac
 - **Frontend**: React, TypeScript, Material-UI
 - **Backend**: ASP.NET Core, C#
 - **Database**: Microsoft SQL Server
-- **Authentication**: JWT, ASP.NET Core Identity
 
 # ✨ Main Features
-**Secure Authentication System**
+-**Secure Authentication System**
   - JWT-based login/registration
   **Wallet Management**
   - Real-time balance tracking
