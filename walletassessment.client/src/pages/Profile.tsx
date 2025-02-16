@@ -38,7 +38,7 @@ const Profile = () => {
         User Profile
       </Typography>
 
-      <Grid container spacing={3}>
+      
         <Grid item xs={12} md={4}>
           <Card sx={{
             borderRadius: 2,
@@ -83,35 +83,7 @@ const Profile = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={8}>
-          <Card sx={{
-            borderRadius: 2,
-            boxShadow: 3,
-            p: 3
-          }}>
-            <Typography variant="h6" sx={{
-              fontWeight: 600,
-              mb: 3,
-              color: 'primary.dark'
-            }}>
-              Account Details
-            </Typography>
-
-            <List sx={{ width: '100%' }}>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary="Registration Date"
-                  secondary="January 15, 2023"
-                  secondaryTypographyProps={{ color: 'text.secondary' }}
-                />
-              </ListItem>
-              
-            </List>
-
-          
-          </Card>
-        </Grid>
-      </Grid>
+      
     </Container>
   );
 };
