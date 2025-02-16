@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using WalletAssessment.Server.Controllers;
 using WalletAssessment.Server.Data.Context;
 using WalletAssessment.Server.Data.Contracts;
 using WalletAssessment.Server.Data.Mapping;
@@ -79,6 +80,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<IUserServices, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<WalletController>();
 
 
 // Regsitering AutoMapper

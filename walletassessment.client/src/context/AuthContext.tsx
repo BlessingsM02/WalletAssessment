@@ -41,11 +41,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             console.log('Checking authentication...');
             const refreshToken = localStorage.getItem('refreshToken');
-            console.log('Stored token:', refreshToken?.toString());
+            //console.log('Stored token:', refreshToken?.toString());
             
             if (refreshToken) {
               const response = await api.post('/refresh-token/', { refreshToken });
-              console.log('Current user response:', response);
+              //console.log('Current user response:', response);
               setUser(response.data);
               navigate('/profile');
             }
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post('/register', values);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       setUser(response.data.user);
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       throw new Error((error as Error).message);
     }

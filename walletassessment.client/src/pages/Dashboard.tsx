@@ -1,65 +1,49 @@
-// src/pages/Dashboard.tsx
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-
-import {
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
+import { 
+  Container, 
+  Grid, 
+  Card, 
+  CardContent, 
+  Typography, 
   CircularProgress,
-  Alert,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow
+  Alert 
 } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 interface Balance {
   total: number;
-  currencies: CurrencyBalance[];
-}
-
-interface CurrencyBalance {
-  currency: string;
-  amount: number;
-  rate: number;
+  currencies: { currency: string; amount: number }[];
 }
 
 interface Transaction {
   id: string;
   amount: number;
-  currency: string;
-  type: 'deposit' | 'withdrawal' | 'transfer';
-  date: string;
+  type: string;
+  timestamp: string;
   description: string;
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [balance, setBalance] = useState<Balance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [balanceRes, transactionsRes] = await Promise.all([
-          api.get('/balance') as Promise<{ data: Balance }>,
-          api.get('/transactions') as Promise<{ data: Transaction[] }>
-        ]);
+        const balanceRes = await api.get('/wallet/balance', { 
+          params: { email: user?.email } 
+        });
         
-        setBalance(balanceRes.data);
-        setTransactions(transactionsRes.data.slice(0, 5));
+        // Verify the response structure here
+        console.log('API Response:', balanceRes.data.balance);
+        
+        setBalance(balanceRes.data.balance);
+        
       } catch (err) {
         setError('Failed to load dashboard data');
       } finally {
@@ -67,8 +51,10 @@ const Dashboard = () => {
       }
     };
 
-    fetchData();
-  }, []);
+    if (user?.email) {
+      fetchData();
+    }
+  }, [user?.email]);
 
   if (loading) {
     return (
@@ -89,7 +75,7 @@ const Dashboard = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Welcome back, {user?.email}!
+        Welcome, {user?.email}!
       </Typography>
 
       <Grid container spacing={3}>
@@ -101,7 +87,7 @@ const Dashboard = () => {
                 Total Balance
               </Typography>
               <Typography variant="h3">
-                ${balance?.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                K {balance}
               </Typography>
             </CardContent>
           </Card>
@@ -125,8 +111,11 @@ const Dashboard = () => {
                     outerRadius={80}
                     label
                   >
-                    {balance?.currencies.map((entry, index) => (
-                      <Cell key={entry.currency} fill={COLORS[index % COLORS.length]} />
+                    {balance?.currencies?.map((entry, index) => (
+                      <Cell 
+                        key={entry.currency} 
+                        fill={['#0088FE', '#00C49F', '#FFBB28'][index % 3]} 
+                      />
                     ))}
                   </Pie>
                 </PieChart>
@@ -135,60 +124,7 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        {/* Recent Transactions Table */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Recent Transactions
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Currency</TableCell>
-                    <TableCell>Type</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell>
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{transaction.description}</TableCell>
-                      <TableCell
-                        sx={{
-                          color: transaction.type === 'deposit' ? 'success.main' : 'error.main'
-                        }}
-                      >
-                        {transaction.type === 'deposit' ? '+' : '-'}
-                        {transaction.amount.toFixed(2)}
-                      </TableCell>
-                      <TableCell>{transaction.currency}</TableCell>
-                      <TableCell>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            textTransform: 'capitalize',
-                            color: transaction.type === 'deposit' ? 'success.main' : 'error.main'
-                          }}
-                        >
-                          {transaction.type}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {transactions.length === 0 && (
-                <Typography sx={{ p: 2 }}>No recent transactions</Typography>
-              )}
-            </TableContainer>
-          </Paper>
-        </Grid>
+        {/* Recent Transactions - Removed for simplicity */}
       </Grid>
     </Container>
   );
