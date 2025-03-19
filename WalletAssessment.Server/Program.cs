@@ -87,6 +87,7 @@ builder.Services.AddScoped<WalletController>();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 
+
 // Adding Jwt from extension method
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJwt(builder.Configuration);
